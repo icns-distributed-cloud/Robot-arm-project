@@ -87,6 +87,8 @@ void MX_USB_HOST_Process(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+// Ultrasonic Sensor Example 1
 uint32_t micros() {
   return (uwTick&0x3FFFFF)*1000 + (SYSTICK_LOAD-SysTick->VAL)/SYS_CLOCK;
 }
@@ -115,6 +117,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) //External interrupt for Sonar
 
 	  case 0x0000 :
 		 distance = (micros() - ss) / 58;
+		// Set flag distance
 		 if(distance <= 3){
 			 distance_flag = true;
 		 }
@@ -169,6 +172,7 @@ int main(void)
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
 
+  //Serial communication Example 1
   //raspberryPi to robotArm
   HAL_UART_Receive_IT(&huart3,&rx3_data,1);
 
@@ -192,14 +196,18 @@ int main(void)
 
   while (1)
   {
-
+	  //Initial status
+	  //The number is the robot arm motor sequence
 	  TIM3->CCR3=360; // 1 top
 	  TIM12->CCR1=150;//2
 	  TIM12->CCR2=200; // 3
 	  TIM3->CCR2= 400; //4
 	  TIM3->CCR1 = 500; // 5
 
+	  
 	  if(rx3_data == 1){
+		  //Serial communication Example 2
+		  //If the data from the raspberryPi is 1, Send tmp_stop(1) to cart stm
 		  HAL_UART_Transmit(&huart2, &tmp_stop, 1, 100);
 
 	  }
@@ -211,6 +219,7 @@ int main(void)
 	  	  }
 	  else if(rx3_data == 4){
 		TIM12->CCR1=250; // 2
+		// Delay
 		HAL_Delay(2000);
 
 		TIM3->CCR3=360; // 1 top
@@ -218,6 +227,7 @@ int main(void)
 		TIM3->CCR2= 400; //4
 		TIM3->CCR1 = 500; // 5
 	  }
+	  // Ultrasonic Sensor Example 2
 	  if(distance_flag){
 		  TIM3->CCR3=450;
 		  HAL_Delay(1000);
